@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/19 11:45:39 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/19 11:59:49 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,22 @@ clean: down
 # 	CUSTOM 
 
 # Verify presence of env-file
-ifneq ("$(wildcard ./secrets/.env)","")
+ifneq ("$(wildcard racine-du-makefile/secrets/.env)","") # wildcard = check if file exists
 else
 	$(error "Error: .env file not found in ./secrets/. Aborting...")
 endif
+
+git_push: git_add git_commit git_status
+	git push
+
+git_add:
+	git add . 
+
+git_commit:
+	@read -p "Please enter your commit message: " msg; \
+	git commit -m "$$msg"
+
+git_status:
+	git status
+
+.PHONY: git_push
