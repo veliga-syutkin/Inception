@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/19 14:12:38 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/19 14:14:14 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,9 @@ down:
 fclean:
 	docker-compose -f srcs/docker-compose.yml down
 	docker volume rm $$(docker volume ls -qf dangling=true)
-	docker network rm $$(docker network ls -qf dangling=true)
+	@if [ "$$(docker network ls -qf dangling=true)" ]; then \
+        docker network rm $$(docker network ls -qf dangling=true); \
+    fi
 
 re: down up
 
