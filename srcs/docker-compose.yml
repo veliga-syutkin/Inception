@@ -9,7 +9,7 @@ services:
     networks:
       - inception
     env_file:
-      - ./secrets/.env
+      - ../secrets/.env
 
   wordpress:
     build: ./requirements/wordpress
@@ -21,7 +21,7 @@ services:
     networks:
       - inception
     env_file:
-      - ./secrets/.env
+      - ../secrets/.env
     
   nginx:
     build: ./requirements/nginx
@@ -35,7 +35,7 @@ services:
     networks:
       - inception
     env_file:
-      - ./secrets/.env
+      - ../secrets/.env
 
 volumes:
   mariadb_data:
