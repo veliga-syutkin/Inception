@@ -10,8 +10,7 @@ fi
 
 cd /var/www/html
 
-# Create wp-config.php file if not already done
-if [ ! -f wp-config.php ]; then
+# Create wp-config.php file even if already done
   wp config create \
     --dbname=$MYSQL_DATABASE \
     --dbuser=$MYSQL_USER \
@@ -19,7 +18,6 @@ if [ ! -f wp-config.php ]; then
     --dbhost=$MYSQL_HOST \
     --path=/var/www/html \
     --allow-root
-fi
 
 # Install WordPress if not already done
 if ! wp core is-installed --allow-root; then
