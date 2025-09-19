@@ -13,7 +13,8 @@ RUN mkdir -p /var/www/html \
     && wget https://wordpress.org/wordpress-${WP_VERSION}.tar.gz \
     && tar -xzf wordpress-${WP_VERSION}.tar.gz \
     && rm wordpress-${WP_VERSION}.tar.gz \
-    && mv wordpress/* /var/www/html
+    && mv wordpress/* /var/www/html \
+    && rm -rf wordpress
 
 # Copy custom config php-fpm
 COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
