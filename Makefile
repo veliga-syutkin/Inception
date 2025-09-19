@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/19 11:59:49 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/19 12:00:13 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,7 @@ else
 	$(error "Error: .env file not found in ./secrets/. Aborting...")
 endif
 
-git_push: git_add git_commit git_status
+git_push: git_add git_status git_commit
 	git push
 
 git_add:
