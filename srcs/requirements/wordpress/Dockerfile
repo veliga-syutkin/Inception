@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Download specific WordPress version
-RUN wget https://wordpress.org/wordpress-${WP_VERSION}.tar.gz \
+RUN mkdir -p /var/www/html \
+    && wget https://wordpress.org/wordpress-${WP_VERSION}.tar.gz \
     && tar -xzf wordpress-${WP_VERSION}.tar.gz \
     && rm wordpress-${WP_VERSION}.tar.gz \
     && mv wordpress /var/www/html
