@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/17 18:45:06 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/19 11:45:39 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,3 +44,4 @@ clean: down
 ifneq ("$(wildcard ./secrets/.env)","")
 else
 	$(error "Error: .env file not found in ./secrets/. Aborting...")
+endif
