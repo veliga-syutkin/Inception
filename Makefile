@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/19 12:00:13 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/19 12:01:13 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ clean: down
 # 	CUSTOM 
 
 # Verify presence of env-file
-ifneq ("$(wildcard racine-du-makefile/secrets/.env)","") # wildcard = check if file exists
+ifneq ("$(wildcard ./secrets/.env)","") # wildcard = check if file exists
 else
 	$(error "Error: .env file not found in ./secrets/. Aborting...")
 endif
