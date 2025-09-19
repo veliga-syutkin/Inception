@@ -1,4 +1,4 @@
-# Starting point - clean Debian image
+# Starting point - clean Debian image (bullseye = Debian 11)
 FROM debian:bullseye
 
 # Install mariadb

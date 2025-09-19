@@ -1,16 +1,18 @@
-# Starting point - clean Debian image
 FROM debian:bullseye
 
-# Install nginx
-RUN apt-get update && \
-	apt-get install -y nginx && \
-	rm -rf /var/lib/apt/lists/*
+# Install nginx and openssl
+RUN apt-get update && apt-get install -y nginx openssl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Conventionnal directory for persisting nginx files
-VOLUME ["/etc/nginx/certs"]
+# Copy custom Nginx config
+COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
-# Nginx port
-EXPOSE 443
+# Copy script to generate certificates
+COPY tools/generate_certs.sh /generate_certs.sh
+RUN chmod +x /generate_certs.sh
 
-# launch Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Create certs directory
+RUN mkdir -p /etc/nginx/certs
+
+# Generate certificates at build time or startup
+CMD ["/bin/bash", "-c", "/generate_certs.sh && nginx -g 'daemon off;'"]
