@@ -1,7 +1,7 @@
 # define the WordPress version to install
-ENV WP_VERSION=6.5.2
-
 FROM debian:bullseye
+
+ENV WP_VERSION=6.5.2
 
 # Install php, php-fpm and necessary extenstions for WordPress
 RUN apt-get update && apt-get install -y \
