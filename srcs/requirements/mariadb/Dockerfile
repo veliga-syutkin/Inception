@@ -29,6 +29,5 @@ EXPOSE 3306
 # launch MariaDB 
 # DEPRECATED: CMD ["mysqld_safe"]
 
-# Use the init script to initialize the database and then launch mysqld_safe
-RUN /docker-entrypoint-initdb.d/init.sh 
+# Use the entrypoint script to initialize the database if needed and then launch mysqld_safe
 CMD ["/entrypoint.sh"]
