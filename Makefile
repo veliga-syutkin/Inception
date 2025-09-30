@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/19 14:14:14 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/09/30 17:02:51 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,10 +39,15 @@ fclean:
         docker network rm $$(docker network ls -qf dangling=true); \
     fi
 
-re: down up
+re: fclean up
 
 clean: down
 	docker system prune -af --volumes
+
+logs: 
+	docker logs mariadb
+	docker logs wordpress
+	docker logs nginx
 
 ################################################################################ #
 # 	CUSTOM 
