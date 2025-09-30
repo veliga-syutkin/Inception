@@ -22,4 +22,7 @@ VOLUME ["/var/lib/mysql"]
 EXPOSE 3306
 
 # launch MariaDB 
-CMD ["mysqld_safe"]
+# DEPRECATED: CMD ["mysqld_safe"]
+
+# Use the init script to initialize the database and then launch mysqld_safe
+CMD /docker-entrypoint-initdb.d/init.sh && mysqld_safe
