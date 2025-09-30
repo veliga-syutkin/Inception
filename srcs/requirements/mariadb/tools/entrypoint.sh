@@ -8,4 +8,5 @@ else
     echo "Database already initialized, skipping init."
 fi
 
+echo "STARTING MARIADB..."
 exec mysqld_safe
