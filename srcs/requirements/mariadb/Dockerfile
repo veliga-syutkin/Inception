@@ -11,7 +11,9 @@ COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/
 
 # Copy initialization script and make it executable
 COPY tools/init.sh /docker-entrypoint-initdb.d/init.sh
+RUN echo "initialization script copied"
 RUN chmod +x /docker-entrypoint-initdb.d/init.sh
+RUN echo "initialization script made executable"
 
 # Conventionnal directory for persisting database files
 VOLUME ["/var/lib/mysql"]
