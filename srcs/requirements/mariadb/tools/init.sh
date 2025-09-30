@@ -1,14 +1,16 @@
 #!/bin/bash
-# service mysql start
-echo "Initializing database..."
+echo "Generating init.sql..."
 
-mariadb -h localhost -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
-mariadb -h localhost -e "DROP USER IF EXISTS '$MYSQL_USER'@'%';"
-mariadb -h localhost -e "DROP USER IF EXISTS '$MYSQL_USER'@'localhost';"
-mariadb -h localhost -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';"
-mariadb -h localhost -e "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'localhost';"
-mariadb -h localhost -e "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
-mariadb -h localhost -e "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
-mariadb -h localhost -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;"
-mariadb -h localhost -e "FLUSH PRIVILEGES;"		# Apply changes
-echo "Database initialized."
+cat <<EOF > /docker-entrypoint-initdb.d/init.sql
+CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;
+DROP USER IF EXISTS '$MYSQL_USER'@'%';
+DROP USER IF EXISTS '$MYSQL_USER'@'localhost';
+CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'localhost';
+CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOF
+
+echo "init.sql generated."

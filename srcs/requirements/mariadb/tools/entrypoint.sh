@@ -1,12 +1,20 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-if ! mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "USE mysql;" >/dev/null 2>&1; then
-    echo "Database not initialized, running init script..."
-    /docker-entrypoint-initdb.d/init.sh
+DATADIR="/var/lib/mysql"
+
+echo "[ENTRYPOINT] Checking MariaDB system tables..."
+
+if [ ! -f "$DATADIR/mysql/user.frm" ]; then
+    echo "[ENTRYPOINT] No system tables found, initializing database..."
+    /docker-entrypoint-initdb.d/init.sh # Generate init.sql
+    mysql_install_db --user=mysql --datadir="$DATADIR"
+	echo "[ENTRYPOINT] Running init SQL..."
+	mysqld --user=mysql --skip-networking --bootstrap < /docker-entrypoint-initdb.d/init.sql
+	echo "[ENTRYPOINT] Database initialized."
 else
-    echo "Database already initialized, skipping init."
+    echo "[ENTRYPOINT] System tables exist, skipping init."
 fi
 
-echo "STARTING MARIADB..."
-exec mysqld_safe
+echo "[ENTRYPOINT] Starting MariaDB..."
+exec mysqld_safe --nowatch
