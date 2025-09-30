@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ ! -d "/var/lib/mysql/mysql" ]; then
+if ! mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "USE mysql;" >/dev/null 2>&1; then
     echo "Database not initialized, running init script..."
     /docker-entrypoint-initdb.d/init.sh
 else
