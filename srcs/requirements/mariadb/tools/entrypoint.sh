@@ -17,7 +17,7 @@ else
 fi
 
 echo "[ENTRYPOINT] Starting MariaDB..."
-exec mysqld_safe --nowatch || {
+exec mysqld_safe || {
     echo "[ENTRYPOINT] MariaDB failed to start. Showing error log:" >&2
     ERRLOG=$(ls /var/lib/mysql/*.err 2>/dev/null | head -n1)
     if [ -f "$ERRLOG" ]; then
