@@ -1,3 +1,4 @@
+#!/bin/bash
 DATADIR="/var/lib/mysql"
 INIT_SQL="/docker-entrypoint-initdb.d/init.sql"
 
