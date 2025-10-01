@@ -12,6 +12,8 @@ if [ ! -f "$DATADIR/mysql/user.frm" ]; then
 	echo "[ENTRYPOINT] Running init SQL..."
 	mysqld --user=mysql --skip-networking --bootstrap < /docker-entrypoint-initdb.d/init.sql
 	echo "[ENTRYPOINT] Database initialized."
+	# remove init.sql for security reasons
+	rm -f /docker-entrypoint-initdb.d/init.sql
 else
     echo "[ENTRYPOINT] System tables exist, skipping init."
 fi
