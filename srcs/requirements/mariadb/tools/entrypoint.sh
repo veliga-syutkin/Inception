@@ -7,7 +7,8 @@ echo "[ENTRYPOINT] Checking for init.sql..."
 # check if init.sql does not exist
 if [ ! -f "$INIT_SQL" ]; then
 	echo "[ENTRYPOINT] init.sql not found, generating a new one..."
-	sh /docker-entrypoint-initdb.d/init.sh > $INIT_SQL
+	# run the initializer script directly (it writes the SQL file itself)
+	sh /docker-entrypoint-initdb.d/init.sh
 	echo "[ENTRYPOINT] Applying init.sql..."
 	mysqld --bootstrap < $INIT_SQL
 	echo "[ENTRYPOINT] Erasing init.sql content..."
