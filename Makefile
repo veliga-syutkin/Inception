@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/09/30 17:02:51 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/01 17:05:53 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,12 @@ fclean:
 
 re: fclean up
 
+# Reinitialize the whole stack (destroys volumes)
+reinit:
+	@echo "*** Reinitializing stack: this will remove mariadb and wordpress volumes (data loss) ***"
+	docker-compose -f srcs/docker-compose.yml down -v
+	docker-compose --env-file ./secrets/.env -f srcs/docker-compose.yml up -d --build
+
 clean: down
 	docker system prune -af --volumes
 
@@ -71,4 +77,4 @@ git_commit:
 git_status:
 	git status
 
-.PHONY: git_push
+.PHONY: git_push reinit
