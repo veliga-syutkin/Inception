@@ -4,16 +4,24 @@ INIT_SQL="/docker-entrypoint-initdb.d/init.sql"
 
 echo "[ENTRYPOINT] Checking for init.sql..."
 
+# Initialize database if not already done
+if [ ! -d "$DATADIR/mysql" ]; then
+    echo "[ENTRYPOINT] Initializing MariaDB data directory..."
+    mysql_install_db --datadir="$DATADIR" --user=mysql >/dev/null
+fi
+
 # check if init.sql does not exist
 if [ ! -f "$INIT_SQL" ]; then
 	echo "[ENTRYPOINT] init.sql not found, generating a new one..."
 	# run the initializer script directly (it writes the SQL file itself)
 	sh /docker-entrypoint-initdb.d/init.sh
 	echo "[ENTRYPOINT] Applying init.sql..."
+	
 	# start a temporary MariaDB instance in the background so we can apply the SQL
 	# use --skip-networking to avoid exposing it during init
-	mysqld_safe --skip-networking &
-	MYSQ_PID=$!
+	# Initialize with no password for root to allow first connection
+	mysqld_safe --skip-networking --skip-grant-tables &
+	MYSQL_PID=$!
 
 	# wait for the server to be ready (timeout after 30s)
 	echo "[ENTRYPOINT] Waiting for MariaDB to be ready..."
