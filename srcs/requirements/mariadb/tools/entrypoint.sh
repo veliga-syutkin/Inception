@@ -120,7 +120,7 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# First set the root password while in skip-grant-tables mode
 	echo "[ENTRYPOINT] Setting root password..."
-	if ! mysql --skip-password --protocol=socket -h localhost -e "UPDATE mysql.user SET authentication_string=PASSWORD('$MYSQL_ROOT_PASSWORD'), plugin='mysql_native_password' WHERE User='root'; FLUSH PRIVILEGES;" 2>&1; then
+	if ! mysql --skip-password --protocol=socket -h localhost -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD'; FLUSH PRIVILEGES;" 2>&1; then
 		echo "[ENTRYPOINT] Failed to set root password"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
