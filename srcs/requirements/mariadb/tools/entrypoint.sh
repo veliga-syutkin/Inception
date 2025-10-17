@@ -21,9 +21,11 @@ if [ ! -f "$INIT_SQL" ]; then
 	# use --skip-networking to avoid exposing it during init
 	# Initialize with no password for root to allow first connection
 	# Ensure mysql directory exists and has correct permissions
+	echo "[ENTRYPOINT] Setting up MySQL runtime directory..."
 	mkdir -p /var/run/mysqld
-	chown mysql:mysql /var/run/mysqld
-	chmod 777 /var/run/mysqld
+	chown -R mysql:mysql /var/run/mysqld
+	chmod -R 777 /var/run/mysqld
+	echo "[ENTRYPOINT] MySQL runtime directory configured"
 
 	# Start MySQL with debugging and socket configuration
 	mysqld_safe --skip-networking --skip-grant-tables --socket=/var/run/mysqld/mysqld.sock &
@@ -51,13 +53,25 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# When using skip-grant-tables, we don't need authentication
 	echo "[ENTRYPOINT] Testing connection..."
-	# Try connection with debug output
-	if ! mysql --skip-password --protocol=socket -e "SELECT 1" 2>&1; then
-		echo "[ENTRYPOINT] Could not establish a test connection"
-		echo "[ENTRYPOINT] Checking mysql process status..."
+	
+	echo "[ENTRYPOINT] Checking MySQL status before connection..."
+	ps aux | grep mysql
+	echo "[ENTRYPOINT] Socket directory contents:"
+	ls -la /var/run/mysqld/
+	
+	echo "[ENTRYPOINT] Attempting connection with verbose output..."
+	if ! mysql --skip-password --protocol=socket -v -e "SELECT 1" > >(tee /tmp/mysql.log) 2>&1; then
+		echo "[ENTRYPOINT] Connection failed. Debug information:"
+		echo "MySQL Log output:"
+		cat /tmp/mysql.log
+		echo "Process status:"
 		ps aux | grep mysql
-		echo "[ENTRYPOINT] Checking socket file..."
+		echo "Socket status:"
 		ls -l /var/run/mysqld/
+		echo "Socket permissions:"
+		stat /var/run/mysqld/mysqld.sock || true
+		echo "Current user:"
+		id
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
