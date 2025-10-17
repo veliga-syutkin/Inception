@@ -121,9 +121,17 @@ if [ ! -f "$INIT_SQL" ]; then
 	# First set the root password while in skip-grant-tables mode
 	echo "[ENTRYPOINT] Setting root password..."
 	if ! mysql --skip-password --protocol=socket -h localhost <<-EOSQL
+		-- Clean up anonymous users and remote root access
 		DELETE FROM mysql.user WHERE User='';
 		DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-		SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASSWORD}');
+		
+		-- Update root password by directly modifying the user table
+		UPDATE mysql.user 
+		SET Password=PASSWORD('${MYSQL_ROOT_PASSWORD}'),
+			plugin='mysql_native_password'
+		WHERE User='root';
+		
+		-- Make sure privileges are updated
 		FLUSH PRIVILEGES;
 	EOSQL
 	then
