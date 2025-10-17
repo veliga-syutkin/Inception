@@ -120,15 +120,14 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# First set the root password while in skip-grant-tables mode
 	echo "[ENTRYPOINT] Setting root password..."
-	if ! mysql --skip-password --protocol=socket -h localhost -e "UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', CONCAT('*', UPPER(SHA1(UNHEX(SHA1('$MYSQL_ROOT_PASSWORD')))))) WHERE User='root';" 2>&1; then
+	if ! mysql --skip-password --protocol=socket -h localhost <<-EOSQL
+		DELETE FROM mysql.user WHERE User='';
+		DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+		SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASSWORD}');
+		FLUSH PRIVILEGES;
+	EOSQL
+	then
 		echo "[ENTRYPOINT] Failed to set root password"
-		kill "$MYSQL_PID" >/dev/null 2>&1 || true
-		exit 1
-	fi
-	
-	# Need to reload the privilege tables
-	if ! mysql --skip-password --protocol=socket -h localhost -e "FLUSH PRIVILEGES;" 2>&1; then
-		echo "[ENTRYPOINT] Failed to flush privileges"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
@@ -142,14 +141,14 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
-	# Start without skip-grant-tables
-	mysqld_safe --skip-networking &
+	# Start with networking enabled for final configuration
+	mysqld_safe --socket=/var/run/mysqld/mysqld.sock &
 	MYSQL_PID=$!
 
 	# Wait for server
 	_ready=0
 	for i in {1..30}; do
-		if mysqladmin -u root -p"$MYSQL_ROOT_PASSWORD" --protocol=socket -h localhost ping --silent 2>/dev/null; then
+		if mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" --protocol=socket -h localhost ping --silent 2>/dev/null; then
 			echo "[ENTRYPOINT] MariaDB is ready"
 			_ready=1
 			break
@@ -186,4 +185,4 @@ if [ ! -f "$INIT_SQL" ]; then
 fi
 
 echo "[ENTRYPOINT] Starting MariaDB..."
-exec mysqld_safe
+exec mysqld_safe --socket=/var/run/mysqld/mysqld.sock
