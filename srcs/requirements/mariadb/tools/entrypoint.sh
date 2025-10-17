@@ -16,13 +16,16 @@ if [ ! -f "$INIT_SQL" ]; then
 	MYSQ_PID=$!
 
 	# wait for the server to be ready (timeout after 30s)
-
+	echo "[ENTRYPOINT] Waiting for MariaDB to be ready..."
+	
 	_ready=0
 	for i in {1..30}; do
-		if mysqladmin ping >/dev/null 2>&1; then
+		if mysqladmin ping -u root --silent; then
+			echo "[ENTRYPOINT] MariaDB is ready"
 			_ready=1
 			break
 		fi
+		echo "[ENTRYPOINT] Still waiting... attempt $i/30"
 		sleep 1
 	done
 
@@ -32,11 +35,22 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
+	# Double-check that we can actually connect
+	if ! mysql -u root -e "SELECT 1" >/dev/null 2>&1; then
+		echo "[ENTRYPOINT] Could not establish a test connection"
+		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+	echo "[ENTRYPOINT] Test connection successful"
+
 	# apply the SQL using the mysql client and check return code
-	if mysql < "$INIT_SQL"; then
+	echo "[ENTRYPOINT] Executing initialization SQL..."
+	if mysql -u root --verbose < "$INIT_SQL" 2>&1; then
 		echo "[ENTRYPOINT] Database initialization successful"
 	else
 		echo "[ENTRYPOINT] Failed to initialize database"
+		echo "[ENTRYPOINT] SQL Error output:"
+		mysql -u root < "$INIT_SQL" 2>&1 || true
 		kill "$MYSQ_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
