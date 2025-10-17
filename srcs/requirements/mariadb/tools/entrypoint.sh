@@ -60,7 +60,7 @@ if [ ! -f "$INIT_SQL" ]; then
 	ls -la /var/run/mysqld/
 	
 	echo "[ENTRYPOINT] Attempting connection with verbose output..."
-	if ! mysql --skip-password --protocol=socket -v -e "SELECT 1" > >(tee /tmp/mysql.log) 2>&1; then
+	if ! mysql --skip-password --protocol=socket -h localhost -v -e "SELECT 1" > >(tee /tmp/mysql.log) 2>&1; then
 		echo "[ENTRYPOINT] Connection failed. Debug information:"
 		echo "MySQL Log output:"
 		cat /tmp/mysql.log
@@ -79,18 +79,18 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# apply the SQL using the mysql client and check return code
 	echo "[ENTRYPOINT] Executing initialization SQL..."
-	if mysql --skip-password --verbose < "$INIT_SQL" 2>&1; then
+	if mysql --skip-password --protocol=socket -h localhost --verbose < "$INIT_SQL" 2>&1; then
 		echo "[ENTRYPOINT] Database initialization successful"
 	else
 		echo "[ENTRYPOINT] Failed to initialize database"
 		echo "[ENTRYPOINT] SQL Error output:"
-		mysql --skip-password < "$INIT_SQL" 2>&1 || true
+		mysql --skip-password --protocol=socket -h localhost < "$INIT_SQL" 2>&1 || true
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
 	# shutdown the temporary server so we can start it normally below
-	if ! mysqladmin --skip-password shutdown; then
+	if ! mysqladmin --skip-password --protocol=socket -h localhost shutdown; then
 		echo "[ENTRYPOINT] Failed to shutdown temporary server"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
