@@ -20,7 +20,13 @@ if [ ! -f "$INIT_SQL" ]; then
 	# start a temporary MariaDB instance in the background so we can apply the SQL
 	# use --skip-networking to avoid exposing it during init
 	# Initialize with no password for root to allow first connection
-	mysqld_safe --skip-networking --skip-grant-tables &
+	# Ensure mysql directory exists and has correct permissions
+	mkdir -p /var/run/mysqld
+	chown mysql:mysql /var/run/mysqld
+	chmod 777 /var/run/mysqld
+
+	# Start MySQL with debugging and socket configuration
+	mysqld_safe --skip-networking --skip-grant-tables --socket=/var/run/mysqld/mysqld.sock &
 	MYSQL_PID=$!
 
 	# wait for the server to be ready (timeout after 30s)
@@ -45,8 +51,13 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# When using skip-grant-tables, we don't need authentication
 	echo "[ENTRYPOINT] Testing connection..."
-	if ! mysql --skip-password -e "SELECT 1" >/dev/null 2>&1; then
+	# Try connection with debug output
+	if ! mysql --skip-password --protocol=socket -e "SELECT 1" 2>&1; then
 		echo "[ENTRYPOINT] Could not establish a test connection"
+		echo "[ENTRYPOINT] Checking mysql process status..."
+		ps aux | grep mysql
+		echo "[ENTRYPOINT] Checking socket file..."
+		ls -l /var/run/mysqld/
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
