@@ -1,9 +1,9 @@
 version: "3.9"                              # 3.9 is stable version of DOCKER-COMPOSE
 
 services:
-  mariadb:
+  ft_mariadb:
     build: ./requirements/mariadb
-    container_name: mariadb
+    container_name: inception_mariadb
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -11,9 +11,9 @@ services:
     env_file:
       - ../secrets/.env
 
-  wordpress:
+  ft_wordpress:
     build: ./requirements/wordpress
-    container_name: wordpress
+    container_name: inception_wordpress
     volumes:
       - wordpress_data:/var/www/html
     depends_on:
@@ -23,9 +23,9 @@ services:
     env_file:
       - ../secrets/.env
     
-  nginx:
+  ft_nginx:
     build: ./requirements/nginx
-    container_name: nginx
+    container_name: inception_nginx
     ports:
       - "443:443"
     volumes:

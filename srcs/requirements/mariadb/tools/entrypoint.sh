@@ -10,7 +10,34 @@ if [ ! -f "$INIT_SQL" ]; then
 	# run the initializer script directly (it writes the SQL file itself)
 	sh /docker-entrypoint-initdb.d/init.sh
 	echo "[ENTRYPOINT] Applying init.sql..."
-	mysqld --bootstrap < $INIT_SQL
+	# start a temporary MariaDB instance in the background so we can apply the SQL
+	# use --skip-networking to avoid exposing it during init
+	mysqld_safe --skip-networking &
+	MYSQ_PID=$!
+
+	# wait for the server to be ready (timeout after 30s)
+
+	_ready=0
+	for i in {1..30}; do
+		if mysqladmin ping >/dev/null 2>&1; then
+			_ready=1
+			break
+		fi
+		sleep 1
+	done
+
+	if [ "$_ready" -ne 1 ]; then
+		echo "[ENTRYPOINT] MariaDB did not become ready in time"
+		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+
+	# apply the SQL using the mysql client
+	mysql < "$INIT_SQL"
+
+	# shutdown the temporary server so we can start it normally below
+	mysqladmin shutdown
+
 	echo "[ENTRYPOINT] Erasing init.sql content..."
 	echo "" > $INIT_SQL
 fi
