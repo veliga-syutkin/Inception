@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/01 17:05:53 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/17 17:18:51 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,9 +51,9 @@ clean: down
 	docker system prune -af --volumes
 
 logs: 
-	docker logs mariadb
-	docker logs wordpress
-	docker logs nginx
+	docker logs inception_mariadb
+	docker logs inception_wordpress
+	docker logs inception_nginx
 
 ################################################################################ #
 # 	CUSTOM 
