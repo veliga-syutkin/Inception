@@ -120,8 +120,39 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# First set the root password while in skip-grant-tables mode
 	echo "[ENTRYPOINT] Setting root password..."
-	if ! mysql --skip-password --protocol=socket -h localhost -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD'; FLUSH PRIVILEGES;" 2>&1; then
+	if ! mysql --skip-password --protocol=socket -h localhost -e "UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root'; FLUSH PRIVILEGES;" 2>&1; then
 		echo "[ENTRYPOINT] Failed to set root password"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+	echo "[ENTRYPOINT] Root password set successfully"
+
+	# Restart server without skip-grant-tables to apply remaining configuration
+	echo "[ENTRYPOINT] Restarting MariaDB for final configuration..."
+	if ! mysqladmin --skip-password --protocol=socket -h localhost shutdown; then
+		echo "[ENTRYPOINT] Failed to shutdown server"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+
+	# Start without skip-grant-tables
+	mysqld_safe --skip-networking &
+	MYSQL_PID=$!
+
+	# Wait for server
+	_ready=0
+	for i in {1..30}; do
+		if mysqladmin -u root -p"$MYSQL_ROOT_PASSWORD" --protocol=socket -h localhost ping --silent 2>/dev/null; then
+			echo "[ENTRYPOINT] MariaDB is ready"
+			_ready=1
+			break
+		fi
+		echo "[ENTRYPOINT] Still waiting... attempt $i/30"
+		sleep 1
+	done
+
+	if [ "$_ready" -ne 1 ]; then
+		echo "[ENTRYPOINT] MariaDB did not become ready in time"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
