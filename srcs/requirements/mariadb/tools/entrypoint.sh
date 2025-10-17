@@ -79,7 +79,7 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# First create the database only
 	echo "[ENTRYPOINT] Creating database..."
-	if ! mysql --skip-password --protocol=socket -h localhost -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" 2>&1; then
+	if ! mysql --skip-password --protocol=socket -h localhost -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;" 2>&1; then
 		echo "[ENTRYPOINT] Failed to create database"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
@@ -175,7 +175,7 @@ if [ ! -f "$INIT_SQL" ]; then
 	fi
 
 	# Final shutdown before normal startup
-	if ! mysqladmin -u root --protocol=socket -h localhost shutdown; then
+	if ! mysqladmin -u root -p"$MYSQL_ROOT_PASSWORD" --protocol=socket -h localhost shutdown; then
 		echo "[ENTRYPOINT] Failed to shutdown temporary server"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
