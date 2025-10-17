@@ -77,20 +77,59 @@ if [ ! -f "$INIT_SQL" ]; then
 	fi
 	echo "[ENTRYPOINT] Test connection successful"
 
-	# apply the SQL using the mysql client and check return code
-	echo "[ENTRYPOINT] Executing initialization SQL..."
-	if mysql --skip-password --protocol=socket -h localhost --verbose < "$INIT_SQL" 2>&1; then
-		echo "[ENTRYPOINT] Database initialization successful"
-	else
-		echo "[ENTRYPOINT] Failed to initialize database"
-		echo "[ENTRYPOINT] SQL Error output:"
-		mysql --skip-password --protocol=socket -h localhost < "$INIT_SQL" 2>&1 || true
+	# First create the database only
+	echo "[ENTRYPOINT] Creating database..."
+	if ! mysql --skip-password --protocol=socket -h localhost -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" 2>&1; then
+		echo "[ENTRYPOINT] Failed to create database"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+	echo "[ENTRYPOINT] Database created successfully"
+
+	# Shutdown the temporary server
+	echo "[ENTRYPOINT] Shutting down temporary server..."
+	if ! mysqladmin --skip-password --protocol=socket -h localhost shutdown; then
+		echo "[ENTRYPOINT] Failed to shutdown temporary server"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
-	# shutdown the temporary server so we can start it normally below
-	if ! mysqladmin --skip-password --protocol=socket -h localhost shutdown; then
+	# Start a new instance without skip-grant-tables to set up users
+	echo "[ENTRYPOINT] Starting temporary server for user setup..."
+	mysqld_safe --skip-networking &
+	MYSQL_PID=$!
+
+	# Wait for the server to be ready
+	echo "[ENTRYPOINT] Waiting for MariaDB to be ready..."
+	_ready=0
+	for i in {1..30}; do
+		if mysqladmin ping -u root --silent; then
+			echo "[ENTRYPOINT] MariaDB is ready"
+			_ready=1
+			break
+		fi
+		echo "[ENTRYPOINT] Still waiting... attempt $i/30"
+		sleep 1
+	done
+
+	if [ "$_ready" -ne 1 ]; then
+		echo "[ENTRYPOINT] MariaDB did not become ready in time"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+
+	# Now apply the user configuration
+	echo "[ENTRYPOINT] Setting up users and privileges..."
+	if mysql -u root --protocol=socket -h localhost < "$INIT_SQL"; then
+		echo "[ENTRYPOINT] User setup successful"
+	else
+		echo "[ENTRYPOINT] Failed to setup users"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+
+	# Final shutdown before normal startup
+	if ! mysqladmin -u root --protocol=socket -h localhost shutdown; then
 		echo "[ENTRYPOINT] Failed to shutdown temporary server"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
