@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/17 17:18:51 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/17 17:54:21 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,6 +55,16 @@ logs:
 	docker logs inception_wordpress
 	docker logs inception_nginx
 
+# Connect to MariaDB using environment variables from .env
+db:
+	@echo "Connecting to MariaDB..."
+	@docker exec -it inception_mariadb mysql -u$$(grep MYSQL_USER ./secrets/.env | cut -d= -f2) -p$$(grep MYSQL_PASSWORD ./secrets/.env | cut -d= -f2) $$(grep MYSQL_DATABASE ./secrets/.env | cut -d= -f2)
+
+# Connect as root to MariaDB
+db-root:
+	@echo "Connecting to MariaDB as root..."
+	@docker exec -it inception_mariadb mysql -uroot -p$$(grep MYSQL_ROOT_PASSWORD ./secrets/.env | cut -d= -f2)
+
 ################################################################################ #
 # 	CUSTOM 
 
@@ -77,4 +87,4 @@ git_commit:
 git_status:
 	git status
 
-.PHONY: git_push reinit
+.PHONY: git_push reinit all up down fclean re clean logs db db-root git_add git_commit git_status
