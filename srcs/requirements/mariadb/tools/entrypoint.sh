@@ -43,8 +43,9 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
-	# Double-check that we can actually connect
-	if ! mysql -u root -e "SELECT 1" >/dev/null 2>&1; then
+	# When using skip-grant-tables, we don't need authentication
+	echo "[ENTRYPOINT] Testing connection..."
+	if ! mysql --skip-password -e "SELECT 1" >/dev/null 2>&1; then
 		echo "[ENTRYPOINT] Could not establish a test connection"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
@@ -53,18 +54,18 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	# apply the SQL using the mysql client and check return code
 	echo "[ENTRYPOINT] Executing initialization SQL..."
-	if mysql -u root --verbose < "$INIT_SQL" 2>&1; then
+	if mysql --skip-password --verbose < "$INIT_SQL" 2>&1; then
 		echo "[ENTRYPOINT] Database initialization successful"
 	else
 		echo "[ENTRYPOINT] Failed to initialize database"
 		echo "[ENTRYPOINT] SQL Error output:"
-		mysql -u root < "$INIT_SQL" 2>&1 || true
+		mysql --skip-password < "$INIT_SQL" 2>&1 || true
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
 	# shutdown the temporary server so we can start it normally below
-	if ! mysqladmin shutdown; then
+	if ! mysqladmin --skip-password shutdown; then
 		echo "[ENTRYPOINT] Failed to shutdown temporary server"
 		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
