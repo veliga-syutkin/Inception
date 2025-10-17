@@ -94,16 +94,16 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
-	# Start a new instance without skip-grant-tables to set up users
+	# Start a new instance with skip-grant-tables for user setup
 	echo "[ENTRYPOINT] Starting temporary server for user setup..."
-	mysqld_safe --skip-networking &
+	mysqld_safe --skip-networking --skip-grant-tables --socket=/var/run/mysqld/mysqld.sock &
 	MYSQL_PID=$!
 
 	# Wait for the server to be ready
 	echo "[ENTRYPOINT] Waiting for MariaDB to be ready..."
 	_ready=0
 	for i in {1..30}; do
-		if mysqladmin ping -u root --silent; then
+		if mysqladmin --skip-password ping -u root --silent; then
 			echo "[ENTRYPOINT] MariaDB is ready"
 			_ready=1
 			break
@@ -118,9 +118,17 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
-	# Now apply the user configuration
+	# First set the root password while in skip-grant-tables mode
+	echo "[ENTRYPOINT] Setting root password..."
+	if ! mysql --skip-password --protocol=socket -h localhost -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD'; FLUSH PRIVILEGES;" 2>&1; then
+		echo "[ENTRYPOINT] Failed to set root password"
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
+
+	# Now apply the rest of the user configuration
 	echo "[ENTRYPOINT] Setting up users and privileges..."
-	if mysql -u root --protocol=socket -h localhost < "$INIT_SQL"; then
+	if mysql -u root -p"$MYSQL_ROOT_PASSWORD" --protocol=socket -h localhost < "$INIT_SQL"; then
 		echo "[ENTRYPOINT] User setup successful"
 	else
 		echo "[ENTRYPOINT] Failed to setup users"
