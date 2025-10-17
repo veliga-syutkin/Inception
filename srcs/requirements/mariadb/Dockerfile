@@ -1,7 +1,7 @@
 # Starting point - clean Debian image (bullseye = Debian 11)
 FROM debian:bullseye
 
-# Install MariaDB (10.5 is the version in Debian Bullseye)
+# Install MariaDB
 RUN apt-get update && \
     apt-get install -y mariadb-server=1:10.5.* && \
     rm -rf /var/lib/apt/lists/*
