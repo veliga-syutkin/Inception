@@ -153,7 +153,7 @@ if [ ! -f "$INIT_SQL" ]; then
 	fi
 
 	# Start with networking enabled for final configuration
-	mysqld_safe --socket=/var/run/mysqld/mysqld.sock &
+	mysqld_safe --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --user=mysql &
 	MYSQL_PID=$!
 
 	# Wait for server
@@ -196,4 +196,4 @@ if [ ! -f "$INIT_SQL" ]; then
 fi
 
 echo "[ENTRYPOINT] Starting MariaDB..."
-exec mysqld_safe --socket=/var/run/mysqld/mysqld.sock
+exec mysqld_safe --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --user=mysql --bind-address=0.0.0.0
