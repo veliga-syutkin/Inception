@@ -126,9 +126,12 @@ if [ ! -f "$INIT_SQL" ]; then
 		DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 		
 		-- Update root password by directly modifying the user table
-		UPDATE mysql.user 
-		SET Password=PASSWORD('${MYSQL_ROOT_PASSWORD}'),
-			plugin='mysql_native_password'
+		UPDATE mysql.global_priv 
+		SET priv=JSON_SET(
+			COALESCE(priv,'{}'),
+			'$.plugin', 'mysql_native_password',
+			'$.authentication_string', CONCAT('*', UPPER(SHA1(UNHEX(SHA1('${MYSQL_ROOT_PASSWORD}')))))
+		)
 		WHERE User='root';
 		
 		-- Make sure privileges are updated
