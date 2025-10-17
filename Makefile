@@ -63,7 +63,7 @@ db:
 # Connect as root to MariaDB
 db-root:
 	@echo "Connecting to MariaDB as root..."
-	@docker exec -it inception_mariadb mysql -uroot -p$$(grep MYSQL_ROOT_PASSWORD ./secrets/.env | cut -d= -f2)
+	@docker exec -it inception_mariadb mysql -uroot -p"$$(grep MYSQL_ROOT_PASSWORD ./secrets/.env | cut -d= -f2)"
 
 ################################################################################ #
 # 	CUSTOM 

@@ -32,11 +32,21 @@ if [ ! -f "$INIT_SQL" ]; then
 		exit 1
 	fi
 
-	# apply the SQL using the mysql client
-	mysql < "$INIT_SQL"
+	# apply the SQL using the mysql client and check return code
+	if mysql < "$INIT_SQL"; then
+		echo "[ENTRYPOINT] Database initialization successful"
+	else
+		echo "[ENTRYPOINT] Failed to initialize database"
+		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
 
 	# shutdown the temporary server so we can start it normally below
-	mysqladmin shutdown
+	if ! mysqladmin shutdown; then
+		echo "[ENTRYPOINT] Failed to shutdown temporary server"
+		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		exit 1
+	fi
 
 	echo "[ENTRYPOINT] Erasing init.sql content..."
 	echo "" > $INIT_SQL
