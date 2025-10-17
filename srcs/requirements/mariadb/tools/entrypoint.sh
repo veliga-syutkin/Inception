@@ -39,14 +39,14 @@ if [ ! -f "$INIT_SQL" ]; then
 
 	if [ "$_ready" -ne 1 ]; then
 		echo "[ENTRYPOINT] MariaDB did not become ready in time"
-		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
 	# Double-check that we can actually connect
 	if ! mysql -u root -e "SELECT 1" >/dev/null 2>&1; then
 		echo "[ENTRYPOINT] Could not establish a test connection"
-		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 	echo "[ENTRYPOINT] Test connection successful"
@@ -59,14 +59,14 @@ if [ ! -f "$INIT_SQL" ]; then
 		echo "[ENTRYPOINT] Failed to initialize database"
 		echo "[ENTRYPOINT] SQL Error output:"
 		mysql -u root < "$INIT_SQL" 2>&1 || true
-		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
 	# shutdown the temporary server so we can start it normally below
 	if ! mysqladmin shutdown; then
 		echo "[ENTRYPOINT] Failed to shutdown temporary server"
-		kill "$MYSQ_PID" >/dev/null 2>&1 || true
+		kill "$MYSQL_PID" >/dev/null 2>&1 || true
 		exit 1
 	fi
 
