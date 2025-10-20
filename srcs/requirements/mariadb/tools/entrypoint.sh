@@ -196,4 +196,4 @@ if [ ! -f "$INIT_SQL" ]; then
 fi
 
 echo "[ENTRYPOINT] Starting MariaDB..."
-exec mysqld_safe --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --user=mysql --bind-address=0.0.0.0
+exec mysqld_safe --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --user=mysql --bind-address=0.0.0.0 --port=3306
