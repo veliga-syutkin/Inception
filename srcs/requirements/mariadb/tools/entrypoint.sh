@@ -205,5 +205,4 @@ exec mysqld_safe \
     --datadir=/var/lib/mysql \
     --bind-address=0.0.0.0 \
     --port=3306 \
-    --skip-networking=0 \
     --socket=/var/run/mysqld/mysqld.sock
