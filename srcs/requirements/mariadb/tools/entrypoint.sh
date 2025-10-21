@@ -153,7 +153,7 @@ if [ ! -f "$INIT_SQL" ]; then
 	fi
 
 	# Start with networking enabled for final configuration
-	mysqld_safe --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --user=mysql &
+	mysqld_safe --bind-address=0.0.0.0 --port=3306 --user=mysql --datadir=/var/lib/mysql --socket=/var/run/mysqld/mysqld.sock &
 	MYSQL_PID=$!
 
 	# Wait for server
