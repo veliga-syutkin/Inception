@@ -199,6 +199,14 @@ echo "[ENTRYPOINT] Starting MariaDB..."
 # Remove any existing PID file to avoid issues
 rm -f /var/run/mysqld/mysqld.pid
 
+# Start MariaDB with proper networking configuration
+exec mysqld_safe \
+    --bind-address=0.0.0.0 \
+    --port=3306 \
+    --user=mysql \
+    --datadir=/var/lib/mysql \
+    --socket=/var/run/mysqld/mysqld.sock
+
 # Start MariaDB with networking enabled
 exec mysqld_safe \
     --user=mysql \
