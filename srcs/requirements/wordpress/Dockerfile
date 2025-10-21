@@ -27,5 +27,5 @@ RUN chmod +x /setup.sh
 # Expose the php-fpm port (documentational)
 EXPOSE 9000
 
-# Launch php-fpm in foreground
-CMD ["/bin/bash", "-c", "/setup.sh && php-fpm7.4 -F"]
+# Launch the setup script which will start php-fpm at the end
+CMD ["/setup.sh"]

@@ -49,3 +49,7 @@ if ! wp core is-installed --allow-root; then
 fi
 
 chown -R www-data:www-data /var/www/html
+
+# Start PHP-FPM in foreground
+echo "Starting PHP-FPM..."
+exec php-fpm7.4 -F
