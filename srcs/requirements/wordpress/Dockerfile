@@ -6,7 +6,8 @@ ENV WP_VERSION=6.5.2
 # Install php, php-fpm and necessary extenstions for WordPress
 RUN apt-get update && apt-get install -y \
     php php-fpm php-mysql wget curl tar less mariadb-client \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /run/php
 
 # Download specific WordPress version
 RUN mkdir -p /var/www/html \
