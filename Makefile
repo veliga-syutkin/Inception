@@ -23,11 +23,18 @@
 #   NAME     : Project name (inception).
 
 NAME=inception
+DATA_DIR=/home/vsyutkin/data
 
 all: up
 
-up:
+up: create_dirs
 	docker-compose --env-file ./secrets/.env -f srcs/docker-compose.yml up -d --build
+
+create_dirs:
+	@echo "Creating data directories if they don't exist..."
+	@mkdir -p $(DATA_DIR)/mariadb
+	@mkdir -p $(DATA_DIR)/wordpress
+	@echo "Data directories ready."
 
 down:
 	docker-compose -f srcs/docker-compose.yml down

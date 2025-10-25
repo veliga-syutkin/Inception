@@ -48,6 +48,22 @@ if ! wp core is-installed --allow-root; then
     --admin_email=$WP_ADMIN_EMAIL \
     --skip-email \
     --allow-root
+  
+  echo "WordPress installed successfully!"
+fi
+
+# Create second user (regular user, not admin) if it doesn't exist
+if ! wp user get $WP_USER --allow-root 2>/dev/null; then
+  wp user create \
+    $WP_USER \
+    $WP_USER_EMAIL \
+    --role=author \
+    --user_pass=$WP_USER_PASSWORD \
+    --allow-root
+  
+  echo "Second WordPress user created: $WP_USER (role: author)"
+else
+  echo "Second WordPress user already exists: $WP_USER"
 fi
 
 chown -R www-data:www-data /var/www/html

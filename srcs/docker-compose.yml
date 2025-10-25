@@ -10,6 +10,7 @@ services:
       - inception
     env_file:
       - ../secrets/.env
+    restart: unless-stopped
 
   ft_wordpress:
     build: ./requirements/wordpress
@@ -22,6 +23,7 @@ services:
       - inception
     env_file:
       - ../secrets/.env
+    restart: unless-stopped
     
   ft_nginx:
     build: ./requirements/nginx
@@ -36,12 +38,21 @@ services:
       - inception
     env_file:
       - ../secrets/.env
+    restart: unless-stopped
 
 volumes:
   mariadb_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/vsyutkin/data/mariadb
   wordpress_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/vsyutkin/data/wordpress
 
 networks:
   inception:
