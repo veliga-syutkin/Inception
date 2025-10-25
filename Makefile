@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/25 12:53:50 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/25 13:08:59 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,16 +52,10 @@ fclean:
 	fi
 
 re: fclean up
+	@echo "*** Stack reinitialized ***"
 
-# Reinitialize the whole stack (destroys volumes)
-reinit:
-	@echo "*** Reinitializing stack: this will remove mariadb and wordpress volumes (data loss) ***"
-	docker-compose -f srcs/docker-compose.yml down -v
-	@echo "*** Cleaning data directories (requires sudo) ***"
-	@sudo rm -rf $(DATA_DIR)/mariadb/*
-	@sudo rm -rf $(DATA_DIR)/wordpress/*
-	make create_dirs
-	docker-compose --env-file ./secrets/.env -f srcs/docker-compose.yml up -d --build
+# Reinitialize the whole stack (destroys volumes and rebuilds everything)
+reinit: re
 
 clean: down
 	docker system prune -af --volumes

@@ -33,7 +33,7 @@
 | Exigence | Status | Notes |
 |----------|--------|-------|
 | 3 containers (nginx, wordpress, mariadb) | ✅ | Conforme |
-| Dockerfiles personnalisés | ✅ | Basés sur Debian Bullseye |
+| Dockerfiles personnalisés | ✅ | Basés sur Debian bookworm |
 | Pas d'images toutes faites | ✅ | Tout build depuis zéro |
 | Network Docker | ✅ | Network `inception` avec driver bridge |
 | 2 volumes | ✅ | `mariadb_data` et `wordpress_data` |

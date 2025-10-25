@@ -1,5 +1,5 @@
-# Starting point - clean Debian image (bullseye = Debian 11)
-FROM debian:bullseye
+# Starting point - clean Debian image (bookworm = Debian 11)
+FROM debian:bookworm
 
 # Install MariaDB
 RUN apt-get update && \

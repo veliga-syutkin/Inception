@@ -1,5 +1,5 @@
 # define the WordPress version to install
-FROM debian:bullseye
+FROM debian:bookworm
 
 ENV WP_VERSION=6.5.2
 
