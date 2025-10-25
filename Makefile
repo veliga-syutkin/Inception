@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/25 12:51:05 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/25 12:53:50 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,11 +40,16 @@ down:
 	docker-compose -f srcs/docker-compose.yml down
 
 fclean:
-	docker-compose -f srcs/docker-compose.yml down
-	docker volume rm $$(docker volume ls -qf dangling=true)
-	@if [ "$$(docker network ls -qf dangling=true)" ]; then \
-        docker network rm $$(docker network ls -qf dangling=true); \
-    fi
+	docker-compose -f srcs/docker-compose.yml down -v
+	@echo "*** Cleaning data directories (requires sudo) ***"
+	@sudo rm -rf $(DATA_DIR)/mariadb/*
+	@sudo rm -rf $(DATA_DIR)/wordpress/*
+	@if [ -n "$$(docker volume ls -qf dangling=true)" ]; then \
+		docker volume rm $$(docker volume ls -qf dangling=true); \
+	fi
+	@if [ -n "$$(docker network ls -qf dangling=true)" ]; then \
+		docker network rm $$(docker network ls -qf dangling=true); \
+	fi
 
 re: fclean up
 
@@ -52,9 +57,9 @@ re: fclean up
 reinit:
 	@echo "*** Reinitializing stack: this will remove mariadb and wordpress volumes (data loss) ***"
 	docker-compose -f srcs/docker-compose.yml down -v
-	@echo "*** Cleaning data directories ***"
-	@rm -rf $(DATA_DIR)/mariadb/*
-	@rm -rf $(DATA_DIR)/wordpress/*
+	@echo "*** Cleaning data directories (requires sudo) ***"
+	@sudo rm -rf $(DATA_DIR)/mariadb/*
+	@sudo rm -rf $(DATA_DIR)/wordpress/*
 	make create_dirs
 	docker-compose --env-file ./secrets/.env -f srcs/docker-compose.yml up -d --build
 
