@@ -69,6 +69,6 @@ fi
 
 chown -R www-data:www-data /var/www/html
 
-# Start PHP-FPM in foreground
+# Start PHP-FPM in foreground (Bookworm uses PHP 8.2)
 echo "Starting PHP-FPM..."
-exec php-fpm7.4 -F
+exec php-fpm8.2 -F

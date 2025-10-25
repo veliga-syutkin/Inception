@@ -1,9 +1,9 @@
-# Starting point - clean Debian image (bookworm = Debian 11)
+# Starting point - clean Debian image (bookworm = Debian 12)
 FROM debian:bookworm
 
-# Install MariaDB
+# Install MariaDB (Bookworm provides 10.11)
 RUN apt-get update && \
-    apt-get install -y mariadb-server=1:10.5.* && \
+    apt-get install -y mariadb-server && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy and setup custom MariaDB configuration

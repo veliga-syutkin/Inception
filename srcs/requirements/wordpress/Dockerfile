@@ -17,8 +17,8 @@ RUN mkdir -p /var/www/html \
     && mv wordpress/* /var/www/html \
     && rm -rf wordpress
 
-# Copy custom config php-fpm
-COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
+# Copy custom config php-fpm (Bookworm uses PHP 8.2)
+COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
 
 # Copy the setup script (install wp-cli, configure WP)
 COPY tools/setup.sh /setup.sh
