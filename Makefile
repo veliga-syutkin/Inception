@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/25 13:08:59 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/26 15:12:29 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -75,6 +75,11 @@ db-root:
 	@echo "Connecting to MariaDB as root..."
 	@docker exec -it inception_mariadb mysql -uroot -p"$$(grep MYSQL_ROOT_PASSWORD ./secrets/.env | cut -d= -f2)"
 
+http: 
+	telnet vsyutkin.42.fr 80
+
+https: 
+	telnet vsyutkin.42.fr 443
 ################################################################################ #
 # 	CUSTOM 
 

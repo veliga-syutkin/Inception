@@ -1,34 +1,26 @@
 #!/bin/bash
 echo "Generating init.sql..."
 
-HOSTNAME=$(hostname)
-
 cat <<EOF > /docker-entrypoint-initdb.d/init.sql
--- First set up root access and privileges
-ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+-- ========================================
+-- Application User Setup
+-- ========================================
+-- Note: Database and root user are already configured by entrypoint.sh
+-- This script only handles the application user for WordPress
 
--- Create root access from anywhere (for development)
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'$HOSTNAME' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;
-
--- Create the database
-CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;
-
--- Set up application user
-DROP USER IF EXISTS '$MYSQL_USER'@'%';
+-- Clean up any existing application users
 DROP USER IF EXISTS '$MYSQL_USER'@'localhost';
-DROP USER IF EXISTS '$MYSQL_USER'@'inception_wordpress.srcs_inception';
+DROP USER IF EXISTS '$MYSQL_USER'@'%';
 
+-- Create application user with access from anywhere
 CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';
 CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-CREATE USER '$MYSQL_USER'@'inception_wordpress.srcs_inception' IDENTIFIED BY '$MYSQL_PASSWORD';
 
+-- Grant privileges on the application database only
 GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'localhost';
 GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'inception_wordpress.srcs_inception';
 
--- Make sure privileges are applied
+-- Apply privileges
 FLUSH PRIVILEGES;
 EOF
 
