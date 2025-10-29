@@ -6,7 +6,7 @@
 #    By: vsyutkin <vsyutkin@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/09 04:36:33 by vsyutkin          #+#    #+#              #
-#    Updated: 2025/10/26 15:12:29 by vsyutkin         ###   ########.fr        #
+#    Updated: 2025/10/29 16:01:12 by vsyutkin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ DATA_DIR=/home/vsyutkin/data
 all: up
 
 up: create_dirs
-	docker-compose --env-file ./secrets/.env -f srcs/docker-compose.yml up -d --build
+	docker-compose --env-file ./.secrets/.env -f srcs/docker-compose.yml up -d --build
 
 create_dirs:
 	@echo "Creating data directories if they don't exist..."
@@ -68,12 +68,12 @@ logs:
 # Connect to MariaDB using environment variables from .env
 db:
 	@echo "Connecting to MariaDB..."
-	@docker exec -it inception_mariadb mysql -u$$(grep MYSQL_USER ./secrets/.env | cut -d= -f2) -p$$(grep MYSQL_PASSWORD ./secrets/.env | cut -d= -f2) $$(grep MYSQL_DATABASE ./secrets/.env | cut -d= -f2)
+	@docker exec -it inception_mariadb mysql -u$$(grep MYSQL_USER ./.secrets/.env | cut -d= -f2) -p$$(grep MYSQL_PASSWORD ./.secrets/.env | cut -d= -f2) $$(grep MYSQL_DATABASE ./.secrets/.env | cut -d= -f2)
 
 # Connect as root to MariaDB
 db-root:
 	@echo "Connecting to MariaDB as root..."
-	@docker exec -it inception_mariadb mysql -uroot -p"$$(grep MYSQL_ROOT_PASSWORD ./secrets/.env | cut -d= -f2)"
+	@docker exec -it inception_mariadb mysql -uroot -p"$$(grep MYSQL_ROOT_PASSWORD ./.secrets/.env | cut -d= -f2)"
 
 http: 
 	telnet vsyutkin.42.fr 80
@@ -84,9 +84,9 @@ https:
 # 	CUSTOM 
 
 # Verify presence of env-file
-ifneq ("$(wildcard ./secrets/.env)","") # wildcard = check if file exists
+ifneq ("$(wildcard ./.secrets/.env)","") # wildcard = check if file exists
 else
-	$(error "Error: .env file not found in ./secrets/. Aborting...")
+	$(error "Error: .env file not found in ./.secrets/. Aborting...")
 endif
 
 git_push: git_add git_status git_commit

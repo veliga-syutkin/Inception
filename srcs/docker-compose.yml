@@ -9,7 +9,7 @@ services:
     networks:
       - inception
     env_file:
-      - ../secrets/.env
+      - ../.secrets/.env
     restart: unless-stopped
 
   ft_wordpress:
@@ -22,7 +22,7 @@ services:
     networks:
       - inception
     env_file:
-      - ../secrets/.env
+      - ../.secrets/.env
     restart: unless-stopped
     
   ft_nginx:
@@ -37,7 +37,7 @@ services:
     networks:
       - inception
     env_file:
-      - ../secrets/.env
+      - ../.secrets/.env
     restart: unless-stopped
 
 volumes:
